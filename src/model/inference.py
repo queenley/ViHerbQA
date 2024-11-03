@@ -18,8 +18,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, DataCollatorForSe
 import warnings
 warnings.filterwarnings("ignore")
 
-TOKENIZER = AutoTokenizer.from_pretrained("/root/masterthesis/model/base/best_tokenizer")  
-MODEL = AutoModelForSeq2SeqLM.from_pretrained("/root/masterthesis/model/base/best_model")
+TOKENIZER = AutoTokenizer.from_pretrained("model/base/best_tokenizer")  
+MODEL = AutoModelForSeq2SeqLM.from_pretrained("model/base/best_model")
 OPTIMIZER = Adam(MODEL.parameters(), lr=0.00001)
 Q_LEN = 512   # Question Length
 T_LEN = 1024    # Target Length
