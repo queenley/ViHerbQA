@@ -70,7 +70,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 We would like to express our gratitude to the following individuals and organizations for their support and contributions to this project:
 
-- **Prof. Long Nguyen**: For providing valuable feedback and guidance throughout the development process.
+- **PhD. Long Nguyen**: For providing valuable feedback and guidance throughout the development process.
 - **ViT5** & **MedicalGPT**: Special thanks to the developers of [ViT5](https://github.com/vietai/ViT5/tree/main) and [MedicalGPT](https://github.com/shibing624/MedicalGPT) for their amazing work, which was instrumental in our implementation.
 
 Additionally, we would like to acknowledge the broader open-source community for their contributions and resources that made this project achievable.
