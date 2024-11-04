@@ -1,5 +1,5 @@
 import wandb
-run = wandb.init(project="viherbqa", name="[close]vit5_base")
+run = wandb.init(project="viherbqa_v2", name="[open]vit5_large")
 from tqdm import tqdm
 from .config import *
 
@@ -15,13 +15,13 @@ class Trainer:
     def __call__(self):
         # run.watch(MODEL)
         for epoch in range(EPOCHS):
-            # Train
+            # Train            
             MODEL.train()        
             train_loss = self.trainer(self.dataloader.train_loader, "train")
                                             
             # Evaluation
             MODEL.eval()
-            val_loss = self.trainer(self.dataloader.val_loader, "val")                        
+            val_loss = self.trainer(self.dataloader.val_loader, type="val", use_cache=True)
             if (self.best_loss == -1) or (val_loss < self.best_loss):
                 self.best_loss = val_loss
                 self.best_epoch = epoch                 
@@ -37,7 +37,7 @@ class Trainer:
     #     print(predicted_answer)                                         
 
 
-    def trainer(self, data_loader, type="train"):    
+    def trainer(self, data_loader, type="train", use_cache=False):    
         sum_loss = 0    
         batch_count = 0
         for batch in tqdm(data_loader, desc=f"{type} batches"):
@@ -50,7 +50,8 @@ class Trainer:
                             input_ids=input_ids,
                             attention_mask=attention_mask,
                             labels=labels,
-                            decoder_attention_mask=decoder_attention_mask
+                            decoder_attention_mask=decoder_attention_mask,
+                            use_cache=use_cache,
                             )
 
             OPTIMIZER.zero_grad()
@@ -58,7 +59,7 @@ class Trainer:
             OPTIMIZER.step()
             
             sum_loss += outputs.loss.item()
-            batch_count += 1          
+            batch_count += 1                 
                         
             if batch_count % BATCH_LOG == 0:                            
                 run.log({f"{type} loss": sum_loss / batch_count})  
@@ -81,5 +82,5 @@ class Trainer:
 
     def save_model(self, name="best"):        
         self.make_model_contiguous()
-        MODEL.save_pretrained(f"viherbqa/{name}_model")
-        TOKENIZER.save_pretrained(f"viherbqa/{name}_tokenizer")   
+        MODEL.save_pretrained(f"model/large/{name}_model")
+        TOKENIZER.save_pretrained(f"model/large/{name}_tokenizer")   

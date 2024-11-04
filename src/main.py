@@ -3,9 +3,12 @@ from model import Trainer, Dataloader
 import warnings
 warnings.filterwarnings("ignore")
 
+import torch
+torch.cuda.empty_cache()
+
 
 if __name__ == "__main__":    
-    data_path = "/root/masterthesis/dataset/viherbqa"
+    data_path = "dataset"
     dataloader = Dataloader(data_path)
     dataloader()
 

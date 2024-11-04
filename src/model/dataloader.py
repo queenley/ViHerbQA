@@ -15,15 +15,15 @@ class Dataloader:
         self.load_data()
 
     def read_data(self):
-        self.data = pd.read_csv(f"{self.data_path}/viherbqa_official.csv")
-        self.train_data = pd.read_csv(f"{self.data_path}/train.csv")
-        self.val_data = pd.read_csv(f"{self.data_path}/val.csv")
-        self.test_data = pd.read_csv(f"{self.data_path}/test.csv")
+        self.data = pd.read_csv(f"{self.data_path}/viherbqa_official_v2.csv")
+        self.train_data = pd.read_csv(f"{self.data_path}/train_v2.csv")
+        self.val_data = pd.read_csv(f"{self.data_path}/val_v2.csv")
+        self.test_data = pd.read_csv(f"{self.data_path}/test_v2.csv")
 
     def sampling_data(self):
         self.train_sampler = RandomSampler(self.train_data.index)
         self.val_sampler = RandomSampler(self.val_data.index)
-        self.test_sampler = RandomSampler(self.val_data.index)
+        self.test_sampler = RandomSampler(self.test_data.index)
 
     def load_data(self):        
         qa_dataset = QADataset(TOKENIZER, self.data, Q_LEN, T_LEN)
@@ -44,23 +44,34 @@ class QADataset(Dataset):
         self.t_len = t_len
         self.data = dataframe
         self.questions = self.data["question"]
-        # self.context = self.data["context"]
+        self.context = self.data["clean_newline"]
         self.answer = self.data['answer']        
         
     def __len__(self):
         return len(self.questions)
     
-    def __getitem__(self, idx):
+    def __getitem__(self, idx):        
         question = self.questions[idx]
-        # context = self.context[idx]
+        context = self.context[idx]
         answer = self.answer[idx]
+
+        input_text = f'CÂU HỎI: {question} </s> NGỮ CẢNH: {context} </s>'
         
-        # question_tokenized = self.tokenizer(question, context, max_length=self.q_len, padding="max_length",
-        #                                             truncation=True, pad_to_max_length=True, add_special_tokens=True)
-        question_tokenized = self.tokenizer(question, max_length=self.q_len, padding="max_length",
-                                                    truncation=True, pad_to_max_length=True, add_special_tokens=True)
-        answer_tokenized = self.tokenizer(answer, max_length=self.t_len, padding="max_length", 
-                                          truncation=True, pad_to_max_length=True, add_special_tokens=True)
+        question_tokenized = self.tokenizer(input_text,                                             
+                                            max_length=self.q_len, 
+                                            padding="max_length",
+                                            truncation=True,
+                                            pad_to_max_length=True, 
+                                            add_special_tokens=True,                                             
+                                        )
+        
+        answer_tokenized = self.tokenizer(answer, 
+                                          max_length=self.t_len, 
+                                          padding="max_length", 
+                                          truncation=True, 
+                                          pad_to_max_length=True, 
+                                          add_special_tokens=True,
+                                        )
         
         labels = torch.tensor(answer_tokenized["input_ids"], dtype=torch.long)
         labels[labels == 0] = -100
