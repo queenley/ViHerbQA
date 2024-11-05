@@ -3,6 +3,7 @@ run = wandb.init(project="viherbqa_v2", name="[open]vit5_large")
 from tqdm import tqdm
 from .config import *
 
+
 class Trainer: 
     def __init__(self,
                     dataloader):
@@ -18,10 +19,12 @@ class Trainer:
             # Train            
             MODEL.train()        
             train_loss = self.trainer(self.dataloader.train_loader, "train")
+
+            self.save_model(name=f"epoch{epoch}")                
                                             
             # Evaluation
-            MODEL.eval()
-            val_loss = self.trainer(self.dataloader.val_loader, type="val", use_cache=True)
+            MODEL.eval()            
+            val_loss = self.trainer(self.dataloader.val_loader, type="val")
             if (self.best_loss == -1) or (val_loss < self.best_loss):
                 self.best_loss = val_loss
                 self.best_epoch = epoch                 

@@ -13,7 +13,7 @@ MODEL = AutoModelForSeq2SeqLM.from_pretrained("VietAI/vit5-large")
 OPTIMIZER = Adam(MODEL.parameters(), lr=1e-5)
 Q_LEN = 1024   # Question Length
 T_LEN = 1024    # Target Length
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 DEVICE = "cuda:0"
 MODEL.to(DEVICE)
 MODEL.gradient_checkpointing_enable()
