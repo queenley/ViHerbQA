@@ -1,51 +1,66 @@
-import pandas as pd
 import torch
+import pandas as pd
 from torch.utils.data import Dataset, DataLoader, RandomSampler
-from .config import *
+
+# from .config import *
 
 
 class Dataloader:
     def __init__(self,
-                data_path: str):
-        self.data_path = data_path        
+                data_path: str,
+                tokenizer,
+                batch_size: int,
+                q_len: int, 
+                t_len: int,
+                is_open: bool,
+                ):
+        self.data_path = data_path  
+        self.tokenizer = tokenizer
+        self.batch_size = batch_size
+        self.q_len = q_len
+        self.t_len = t_len
+        self.is_open = is_open
+
 
     def __call__(self):
         self.read_data()
-        self.sampling_data()
+        # self.sampling_data()
         self.load_data()
 
     def read_data(self):
-        self.data = pd.read_csv(f"{self.data_path}/viherbqa_official_v2.csv")
-        self.train_data = pd.read_csv(f"{self.data_path}/train_v2.csv")
-        self.val_data = pd.read_csv(f"{self.data_path}/val_v2.csv")
-        self.test_data = pd.read_csv(f"{self.data_path}/test_v2.csv")
-
-    def sampling_data(self):
-        self.train_sampler = RandomSampler(self.train_data.index)
-        self.val_sampler = RandomSampler(self.val_data.index)
-        self.test_sampler = RandomSampler(self.test_data.index)
+        # self.data = pd.read_csv(f"{self.data_path}/viherbqa_official_v2.csv")
+        self.train_data = pd.read_csv(f"{self.data_path}/train.csv")
+        self.val_data = pd.read_csv(f"{self.data_path}/val.csv")
+        self.test_data = pd.read_csv(f"{self.data_path}/test.csv")    
 
     def load_data(self):        
-        qa_dataset = QADataset(TOKENIZER, self.data, Q_LEN, T_LEN)
-        self.train_loader = DataLoader(qa_dataset, batch_size=BATCH_SIZE, sampler=self.train_sampler)
-        self.val_loader = DataLoader(qa_dataset, batch_size=BATCH_SIZE, sampler=self.val_sampler)
-        self.test_loader = DataLoader(qa_dataset, batch_size=BATCH_SIZE, sampler=self.test_sampler)
+        # qa_dataset = QADataset(TOKENIZER, self.data, Q_LEN, T_LEN)
+        train_dataset = QADataset(self.train_data, self.tokenizer, self.q_len, self.t_len, self.is_open)
+        self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size)
+
+        val_dataset = QADataset(self.val_data, self.tokenizer, self.q_len, self.t_len, self.is_open)
+        self.val_loader = DataLoader(val_dataset, batch_size=self.batch_size)
+
+        test_dataset = QADataset(self.test_data, self.tokenizer, self.q_len, self.t_len, self.is_open)
+        self.test_loader = DataLoader(test_dataset, batch_size=self.batch_size)
 
 
 class QADataset(Dataset):
-    def __init__(self, 
-                tokenizer, 
-                dataframe, 
-                q_len, 
-                t_len):
-
+    def __init__(self,                 
+                dataset, 
+                tokenizer,
+                q_len,
+                t_len,
+                is_open,
+                ):                
+        self.data = dataset
+        self.questions = self.data["question"]        
+        self.answer = self.data['answer']     
+        self.context = self.data["context"]   
         self.tokenizer = tokenizer
         self.q_len = q_len
         self.t_len = t_len
-        self.data = dataframe
-        self.questions = self.data["question"]
-        self.context = self.data["clean_newline"]
-        self.answer = self.data['answer']        
+        self.is_open = is_open
         
     def __len__(self):
         return len(self.questions)
@@ -55,7 +70,10 @@ class QADataset(Dataset):
         context = self.context[idx]
         answer = self.answer[idx]
 
-        input_text = f'CÂU HỎI: {question} </s> NGỮ CẢNH: {context} </s>'
+        input_text = f'CÂU HỎI: {question} </s> '
+        if self.is_open:
+            print("---> Training with Open Book.....")
+            input_text += f'NGỮ CẢNH: {context} </s>'
         
         question_tokenized = self.tokenizer(input_text,                                             
                                             max_length=self.q_len, 

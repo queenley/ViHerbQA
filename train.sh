@@ -1,1 +1,1 @@
-python3 src/main.py
+python3 src/main.py --model model/open/best_model --tokernizer model/open/best_tokenizer --name close_viherbqa_temp --save_path model/close/temp 
