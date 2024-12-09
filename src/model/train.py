@@ -1,7 +1,12 @@
+import os
+import torch
 import wandb
-wandb.login(key="")
 from tqdm import tqdm
+from dotenv import load_dotenv
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+load_dotenv()
+WANDB_KEY = os.getenv('WANDB_KEY')
 
 
 class Trainer: 
@@ -15,9 +20,10 @@ class Trainer:
                 batch_log: int,
                 project_name: str,
                 folder_name: str,
-                save_path: str,
+                save_path: str,                
                 ):                    
 
+        wandb.login(key=WANDB_KEY)
         self.run = wandb.init(project=project_name, name=folder_name)        
 
         self.save_path = save_path
@@ -51,10 +57,15 @@ class Trainer:
                 self.best_epoch = epoch                 
                 self.save_model()                
                 
-            self.run.log({f"Train loss by epoch": train_loss})            
-            self.run.log({f"Val loss by epoch": val_loss})            
-            print(f"\n{epoch+1}/{self.epoch} -> Train loss: {train_loss}\tValidation loss: {val_loss}")   
+            # Logging
+            self.run.log({
+                "epoch": epoch + 1,
+                "train_loss": train_loss,
+                "val_loss": val_loss
+            })         
+            print(f"\n{epoch+1}/{self.epoch} -> Train loss: {train_loss}\tValidation loss: {val_loss}")                               
 
+        wandb.finish()        
 
     # def print_answer(self, outputs):
     #     predicted_answer = TOKENIZER.decode(outputs.flatten(), skip_special_tokens=True)
@@ -64,29 +75,31 @@ class Trainer:
     def trainer(self, data_loader, type="train", use_cache=False):    
         sum_loss = 0    
         batch_count = 0
-        for batch in tqdm(data_loader, desc=f"{type} batches"):
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device)
-            decoder_attention_mask = batch["decoder_attention_mask"].to(self.device)
+        with torch.no_grad() if type == "val" else torch.enable_grad():
+            for batch in tqdm(data_loader, desc=f"{type} batches"):
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
+                labels = batch["labels"].to(self.device)
+                decoder_attention_mask = batch["decoder_attention_mask"].to(self.device)
 
-            outputs = self.model(
-                            input_ids=input_ids,
-                            attention_mask=attention_mask,
-                            labels=labels,
-                            decoder_attention_mask=decoder_attention_mask,
-                            use_cache=use_cache,
-                            )
+                outputs = self.model(
+                                input_ids=input_ids,
+                                attention_mask=attention_mask,
+                                labels=labels,
+                                decoder_attention_mask=decoder_attention_mask,
+                                use_cache=use_cache,
+                                )
 
-            self.optimizer.zero_grad()
-            outputs.loss.backward()
-            self.optimizer.step()
-            
-            sum_loss += outputs.loss.item()
-            batch_count += 1                 
-                        
-            if batch_count % self.batch_log == 0:                            
-                self.run.log({f"{type} loss": sum_loss / batch_count})  
+                if type == "train":
+                    self.optimizer.zero_grad()
+                    outputs.loss.backward()
+                    self.optimizer.step()
+                
+                sum_loss += outputs.loss.item()
+                batch_count += 1                 
+                            
+                if batch_count % self.batch_log == 0:                            
+                    self.run.log({f"{type} loss": sum_loss / batch_count})  
                       
         
         loss = sum_loss / batch_count
@@ -106,5 +119,5 @@ class Trainer:
 
     def save_model(self, name="best"):        
         self.make_model_contiguous()
-        self.model.save_pretrained(f"{save_path}/{name}_model")
-        self.tokenizer.save_pretrained(f"{save_path}/{name}_tokenizer")   
+        self.model.save_pretrained(f"{self.save_path}/{name}_model")
+        self.tokenizer.save_pretrained(f"{self.save_path}/{name}_tokenizer")   

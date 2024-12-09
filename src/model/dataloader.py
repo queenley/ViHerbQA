@@ -55,7 +55,7 @@ class QADataset(Dataset):
                 ):                
         self.data = dataset
         self.questions = self.data["question"]        
-        self.answer = self.data['answer']     
+        self.answer = self.data['final_answer']     
         self.context = self.data["context"]   
         self.tokenizer = tokenizer
         self.q_len = q_len

@@ -27,7 +27,7 @@ def make_parser():
     parser.add_argument('--save_path', type=str, default="model/large", help="save path of the model")
     parser.add_argument('--is_open', action='store_true')
     parser.add_argument('--device', type=str, default='cuda:0', help="Device")
-    parser.add_argument('--lr', default=1e-5, help="Learning rate")
+    parser.add_argument('--lr', default=1e-5, help="Learning rate")    
 
     args = parser.parse_args()
     
@@ -63,7 +63,7 @@ if __name__ == "__main__":
                       batch_log=args.batch_log,
                       project_name=args.project,
                       folder_name=args.name,
-                      save_path=args.save_path,
+                      save_path=args.save_path,                      
                     )
     trainer()
     trainer.save_model("last")

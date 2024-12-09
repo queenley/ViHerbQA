@@ -42,7 +42,7 @@ def compute_metric(predict_answer, context):
 
 if __name__ == "__main__":
     tqdm.pandas()
-    path = "result/open/val.csv"
+    path = "result/open/train.csv"
     df_test = pd.read_csv(path)
     df_temp = df_test
     response_columns = ["bleu_with_context", "rouge1_with_context", "rouge2_with_context", "rougeL_with_context", "rougeLsum_with_context", "bert_precision_with_context", "bert_recall_with_context", "bert_f1_with_context"]
