@@ -74,7 +74,7 @@ class QADataset(Dataset):
         if self.is_open:
             print("---> Training with Open Book.....")
             input_text += f'NGỮ CẢNH: {context} </s>'
-        
+                
         question_tokenized = self.tokenizer(input_text,                                             
                                             max_length=self.q_len, 
                                             padding="max_length",
