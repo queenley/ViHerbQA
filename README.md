@@ -64,13 +64,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 1. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 2. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-# Acknowledgements
-
-We would like to express our gratitude to the following individuals and organizations for their support and contributions to this project:
-
-- **PhD. Long Nguyen**: For providing valuable feedback and guidance throughout the development process.
-- **ViT5** & **MedicalGPT**: Special thanks to the developers of [ViT5](https://github.com/vietai/ViT5/tree/main) and [MedicalGPT](https://github.com/shibing624/MedicalGPT) for their amazing work, which was instrumental in our implementation.
-
-Additionally, we would like to acknowledge the broader open-source community for their contributions and resources that made this project achievable.
